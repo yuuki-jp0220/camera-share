@@ -16,25 +16,30 @@ GitHub PagesなどのHTTPS対応静的サイトにファイルを置いて使い
 | [管理サイト](https://yuuki-jp0220.github.io/camera-share/p2p/admin.html) | 管理用コードを読み込み、回答コードを返して映像・音声を受信。public公開設定を操作 |
 | [publicサイト](https://yuuki-jp0220.github.io/camera-share/p2p/public.html) | 送信側と管理側の両方で許可された映像・音声だけを表示 |
 
-### 管理サイトのサーバー側パスワード認証（Cloudflare Worker）
+### 管理サイトのサーバー側認証・デバイス記憶（Cloudflare Worker）
 
-管理サイトはGitHub Pagesの直接URLでは開けず、Cloudflare Workerの専用URLからアクセスする構成です。Worker側でパスワードを照合し、認証後は有効期限8時間のHttpOnly・Secure Cookieで管理画面を開きます。パスワード自体はGitHubのソースコードに保存しません。
+管理サイトはGitHub Pagesの直接URLでは開けず、Cloudflare Workerの専用URLからアクセスします。初回は管理者パスワードをWorker側で照合し、成功したブラウザーに30日間有効な署名付き・HttpOnly・Secure Cookieを発行します。同じブラウザープロファイルでは、次回以降パスワードなしで管理サイトを開けます。
+
+- 認証Cookieは30日で期限切れになります。期限切れ後は再度パスワードが必要です。
+- 別のブラウザーや別端末では初回認証が必要です。
+- Cookieやサイトデータを削除すると、登録状態も失われて再認証が必要です。
+- 管理サイト右上の「ログアウト」で、そのブラウザーの登録Cookieを削除できます。
+- これは物理的な端末固有IDの識別ではなく、ブラウザーに保存された署名付き認証Cookieによる記憶です。Cookieを盗まれた場合は、その有効期間中に悪用されるおそれがあります。
 
 #### 初回設定
 
 1. Cloudflareにログインし、Workers & Pagesから新しいWorkerを作成します。
 2. このリポジトリの `cloudflare/worker.js` の内容をWorkerのコードエディターに貼り付けてデプロイします。
-3. 作成したWorkerの Settings → Variables and Secrets で、次の2つを **Secret** として登録します。
-   - `ADMIN_PASSWORD`：新しく決めた管理者パスワード
-   - `SESSION_SECRET`：十分に長くランダムな秘密文字列（パスワードとは別の値）
+3. Workerの Settings → Variables and Secrets で、次の2つを **Secret** として登録します。
+   - `ADMIN_PASSWORD`：管理者用パスワード
+   - `SESSION_SECRET`：十分に長くランダムな秘密文字列（管理者パスワードとは別の値）
 4. Secretを保存して再デプロイします。
 5. Workerの `workers.dev` URLに `/admin` を付けたアドレスを開きます。例：`https://あなたのWorker名.あなたのサブドメイン.workers.dev/admin`
 
 CloudflareのSecret設定手順：<https://developers.cloudflare.com/workers/configuration/secrets/>
 
-**重要：** 以前の管理者パスワードは過去の公開コミットに含まれていたため、再利用せず、新しいパスワードに変更してください。GitHub Pages上の `/p2p/admin.html` は案内ページになっており、実際の管理画面はWorker経由で開きます。送信サイトとpublicサイトはこれまでどおりGitHub Pagesから利用します。
+**重要：** 過去の公開コミットに含まれたパスワードは再利用せず、新しいパスワードに変更してください。GitHub Pages上の `/p2p/admin.html` は案内ページになっており、実際の管理画面はWorker経由で開きます。送信サイトとpublicサイトはこれまでどおりGitHub Pagesから利用します。
 
-この認証は管理サイトの入口を保護するものです。P2Pの接続コード自体も第三者に渡さないでください。
 
 ### 管理サイトのパスワード
 

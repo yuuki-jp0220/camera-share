@@ -1,0 +1,7 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Camera Share Public</title><style>body{font:16px system-ui;background:#080d15;color:#eef;padding:16px;max-width:1000px;margin:auto}.card{background:#172235;padding:16px;border-radius:14px;margin:14px 0}img{width:100%;max-height:75vh;object-fit:contain;background:#000;border-radius:12px}button{padding:12px 18px;border:0;border-radius:9px;background:#3679e8;color:white}</style><h1>📷 Camera Share</h1><section class="card"><h2>公開映像</h2><img id="frame" hidden alt="公開中のカメラ映像"><p id="message">現在、公開映像はありません。</p></section><section class="card"><h2>公開音声</h2><p>音声を聞くには再生を押してください。</p><button id="play">音声を再生</button><button id="stop">停止</button><audio id="audio" controls></audio></section><script>
+const $=x=>document.getElementById(x);let loop=null;
+async function refresh(){let s=await fetch("/api/public/state").then(r=>r.json());$("frame").hidden=!s.video;$("message").hidden=s.video;if(s.video)$("frame").src="/api/public/frame?t="+Date.now();if(!s.audio){$("audio").pause();$("audio").removeAttribute("src")}}
+setInterval(refresh,800);refresh();
+$("play").onclick=()=>{if(loop)return;loop=setInterval(async()=>{try{let r=await fetch("/api/public/audio");if(r.status===200){$("audio").src=URL.createObjectURL(await r.blob());await $("audio").play()}}catch(e){}},150)};
+$("stop").onclick=()=>{clearInterval(loop);loop=null;$("audio").pause();$("audio").removeAttribute("src")};
+</script></html>

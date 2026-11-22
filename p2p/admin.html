@@ -1,1 +1,69 @@
-<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Camera Share P2P - 管理</title><link rel="stylesheet" href="style.css"><body><main><h1>🔐 管理サイト（P2P）</h1><section><h2>送信端末のコードを貼り付け</h2><textarea id="remoteOffer" placeholder="送信サイトの管理用コードを貼り付け"></textarea><button id="makeAnswer">回答コードを作成</button><textarea id="localAnswer" placeholder="作成した回答コード"></textarea><button data-copy="localAnswer">回答コードをコピー</button><p id="status">未接続</p></section><section><h2>管理者プレビュー</h2><video id="remoteVideo" autoplay playsinline controls></video><h2>public公開設定（管理者側）</h2><label><input type="checkbox" id="av" checked> 映像をpublicに公開</label><label><input type="checkbox" id="aa" checked> 音声をpublicに公開</label><p>ここをOFFにしても管理者プレビューには影響しません。</p></section></main><script src="p2p.js"></script><script>CameraShare.init("admin");</script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Camera Share P2P - 管理</title>
+<link rel="stylesheet" href="style.css">
+<style>
+#authGate{position:fixed;inset:0;z-index:9999;background:#101827;color:#fff;display:grid;place-items:center;padding:24px}
+#authGate .auth-card{width:min(100%,380px);background:#1d293b;border:1px solid #40506a;border-radius:16px;padding:24px;box-sizing:border-box}
+#authGate h1{font-size:1.35rem;margin-top:0}
+#authGate input{box-sizing:border-box;width:100%;padding:13px;border-radius:8px;border:1px solid #718096;font-size:1rem;margin:12px 0}
+#authGate button{width:100%;padding:12px;border:0;border-radius:8px;background:#3b82f6;color:white;font-size:1rem;font-weight:700}
+#authError{color:#fca5a5;min-height:1.4em}
+body.locked main{visibility:hidden}
+</style>
+</head>
+<body class="locked">
+<div id="authGate">
+ <form class="auth-card" id="authForm">
+  <h1>🔐 管理者認証</h1>
+  <p>管理サイトを開くには管理者パスワードを入力してください。</p>
+  <label for="adminPassword">管理者パスワード</label>
+  <input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="パスワード" required autofocus>
+  <button type="submit">認証して開く</button>
+  <p id="authError" role="alert"></p>
+ </form>
+</div>
+<main>
+ <h1>🔐 管理サイト（P2P）</h1>
+ <section>
+  <h2>送信端末のコードを貼り付け</h2>
+  <textarea id="remoteOffer" placeholder="送信サイトの管理用コードを貼り付け"></textarea>
+  <button id="makeAnswer">回答コードを作成</button>
+  <textarea id="localAnswer" placeholder="作成した回答コード"></textarea>
+  <button data-copy="localAnswer">回答コードをコピー</button>
+  <p id="status">未接続</p>
+ </section>
+ <section>
+  <h2>管理者プレビュー</h2>
+  <video id="remoteVideo" autoplay playsinline controls></video>
+  <h2>public公開設定（管理者側）</h2>
+  <label><input type="checkbox" id="av" checked> 映像をpublicに公開</label>
+  <label><input type="checkbox" id="aa" checked> 音声をpublicに公開</label>
+  <p>ここをOFFにしても管理者プレビューには影響しません。</p>
+ </section>
+</main>
+<script src="p2p.js"></script>
+<script>
+(()=>{
+ const ADMIN_KEY="83497939";
+ const form=document.getElementById("authForm");
+ form.addEventListener("submit",event=>{
+  event.preventDefault();
+  const field=document.getElementById("adminPassword");
+  if(field.value===ADMIN_KEY){
+   document.body.classList.remove("locked");
+   document.getElementById("authGate").remove();
+   CameraShare.init("admin");
+  }else{
+   document.getElementById("authError").textContent="パスワードが違います。もう一度入力してください。";
+   field.value="";
+   field.focus();
+  }
+ });
+})();
+</script>
+</body>
+</html>

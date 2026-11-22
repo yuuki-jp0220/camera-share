@@ -8,9 +8,9 @@ GitHub PagesなどのHTTPS対応静的サイトにファイルを置いて使い
 
 | ページ | 役割 |
 |---|---|
-| [送信サイト](p2p/sender.html) | 送信端末1台。カメラ・マイクを開始し、管理用と公開用の接続コードを作成 |
-| [管理サイト](p2p/admin.html) | 管理用コードを読み込み、回答コードを返して映像・音声を受信。public公開設定を操作 |
-| [publicサイト](p2p/public.html) | 送信側と管理側の両方で許可された映像・音声だけを表示 |
+| [送信サイト](https://yuuki-jp0220.github.io/camera-share/p2p/sender.html) | 送信端末1台。カメラ・マイクを開始し、管理用と公開用の接続コードを作成 |
+| [管理サイト](https://yuuki-jp0220.github.io/camera-share/p2p/admin.html) | 管理用コードを読み込み、回答コードを返して映像・音声を受信。public公開設定を操作 |
+| [publicサイト](https://yuuki-jp0220.github.io/camera-share/p2p/public.html) | 送信側と管理側の両方で許可された映像・音声だけを表示 |
 
 ### 接続手順
 

@@ -24,11 +24,13 @@ body{margin:0} .topbar{max-width:1000px;margin:12px auto;padding:0 16px;display:
 <script src="https://yuuki-jp0220.github.io/camera-share/p2p/p2p.js"></script>
 <script>CameraShare.init("admin");</script></body></html>`;
 
-const enc = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/=/g,"").replace(/\\+/g,"-").replace(/\\//g,"_");
-const dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"=".repeat((4-s.length%4)%4)),c=>c.charCodeAt(0)));
+const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2,"0")).join("");
+const unhex = value => Uint8Array.from(value.match(/.{2}/g)||[], pair => parseInt(pair,16));
+const enc = value => hex(new TextEncoder().encode(value));
+const dec = value => new TextDecoder().decode(unhex(value));
 async function sign(value, secret) {
  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);
- return enc(String.fromCharCode(...new Uint8Array(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(value)))));
+ return hex(new Uint8Array(await crypto.subtle.sign("HMAC",key,new TextEncoder().encode(value))));
 }
 async function validSession(request, env) {
  const cookie=request.headers.get("Cookie")||"";
